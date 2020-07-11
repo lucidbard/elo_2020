@@ -1,34 +1,32 @@
-
 import "./style.css"
-
 import * as ZapparThree from "@zappar/zappar-threejs"
-const createGeometry = require('three-bmfont-text');
-const loadFont = require('load-bmfont');
-import atlas from './font/atlas.png';
+const createGeometry = require("three-bmfont-text")
+const loadFont = require("load-bmfont")
+import atlas from "./font/atlas.png"
 import * as THREE from "three"
-import nfont from "./font/HelveticaNeue.fnt";
+import nfont from "./font/HelveticaNeue.fnt"
 console.log(nfont)
 loadFont(nfont, (err, font) => {
   console.log("Font loaded!")
   console.log(err)
   // Create a geometry of packed bitmap glyphs
-  console.log(font);
+  console.log(font)
   const geometry = createGeometry({
     font,
-    text: 'OCEAN'
-  });  
+    text: "OCEAN",
+  })
   // Load texture containing font glyphs
-  const loader = new THREE.TextureLoader();
-  console.log(loader, geometry);
+  const loader = new THREE.TextureLoader()
+  console.log(loader, geometry)
   loader.load(atlas, (texture) => {
     console.log("Atlas loaded!")
     // Start and animate renderer
-    init(geometry, texture);
-    // render();
-  });
-});
-
-const MSDFShader = require('three-bmfont-text/shaders/msdf');
+    init(geometry, texture)
+    render()
+  })
+})
+TRACKING = false
+const MSDFShader = require("three-bmfont-text/shaders/msdf")
 
 // ZapparThree provides a LoadingManager that shows a progress bar while
 // the assets are downloaded
@@ -43,30 +41,79 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight)
 })
 
-// Setup a Zappar camera instead of one of ThreeJS's cameras
-let camera = new ZapparThree.Camera()
-camera.posMode = ZapparThree.CameraPoseMode.AnchorOrigin
-
-// The Zappar library needs your WebGL context, so pass it
-ZapparThree.glContextSet(renderer.getContext())
-
-// Create a ThreeJS Scene and set its background to be the camera background texture
-let scene = new THREE.Scene()
-scene.background = camera.backgroundTexture
-
-// Request the necessary permission from the user
-ZapparThree.permissionRequestUI().then(function (granted) {
-  if (granted) camera.start()
-  else ZapparThree.permissionDeniedUI()
-})
-
-// Set up our image tracker group
-// Pass our loading manager in to ensure the progress bar works correctly
-let tracker = new ZapparThree.ImageTrackerLoader(manager).load(
-  require("file-loader!./tophoop2title.zpt").default
+var texture = new THREE.TextureLoader().load(
+  require("file-loader!./images/particle.png").default
 )
-let trackerGroup = new ZapparThree.ImageAnchorGroup(camera, tracker)
-scene.add(trackerGroup)
+// create the particle variables
+var particleMaterial = new THREE.ParticleBasicMaterial({
+  color: 0xffffff,
+  size: 0.5,
+  map: texture,
+  blending: THREE.AdditiveBlending,
+  transparent: true,
+})
+let particleSys = new THREE.Points(particleGeom, particleMaterial)
+particleSys.name = "particleSys"
+particleSys.sortParticles = true
+let trackerGroup, camera
+let scene = new THREE.Scene()
+if (TRACKING) {
+  camera = new ZapparThree.Camera()
+  camera.posMode = ZapparThree.CameraPoseMode.AnchorOrigin
+
+  // Setup a Zappar camera instead of one of ThreeJS's camer
+  // The Zappar library needs your WebGL context, so pass it
+  ZapparThree.glContextSet(renderer.getContext())
+
+  // Create a ThreeJS Scene and set its background to be the camera background texture
+  scene.background = camera.backgroundTexture
+
+  // Request the necessary permission from the user
+  ZapparThree.permissionRequestUI().then(function (granted) {
+    if (granted) camera.start()
+    else ZapparThree.permissionDeniedUI()
+  })
+
+  // Set up our image tracker group
+  // Pass our loading manager in to ensure the progress bar works correctly
+
+  let tracker = new ZapparThree.ImageTrackerLoader(manager).load(
+    require("file-loader!./tophoop2title.zpt").default
+  )
+  trackerGroup = new ZapparThree.ImageAnchorGroup(camera, tracker)
+  scene.add(trackerGroup)
+  tracker.onNewAnchor.bind((anchor) => {
+    console.log("New anchor has appeared:", anchor.id)
+
+    // You may like to create a new ImageAnchorGroup here for this anchor, and add it to your scene
+  })
+  particleSys.visible = !TRACKING
+  tracker.onVisible.bind((anchor) => {
+    console.log("Anchor is visible:", anchor.id)
+    particleSys.visible = true
+  })
+
+  tracker.onNotVisible.bind((anchor) => {
+    console.log("Anchor is not visible:", anchor.id)
+    particleSys.visible = false
+  })
+} else {
+  camera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+  )
+  camera.position.z = 5
+  trackerGroup = THREE.Group()
+  var geometry = new THREE.BoxGeometry()
+  var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+  var cube = new THREE.Mesh(geometry, material)
+  scene.add(cube)
+
+  scene.add(trackerGroup)
+}
+trackerGroup.add(particleSys)
 
 // Add some content
 var radius = 2.25
@@ -94,56 +141,27 @@ for (var i = 0; i < particleCount; i++) {
   let particle = new THREE.Vector3(newX, newY, posZ)
   particleGeom.vertices.push(particle)
 }
-var texture = new THREE.TextureLoader().load(
-  require("file-loader!./images/particle.png").default
-)
-// create the particle variables
-var particleMaterial = new THREE.ParticleBasicMaterial({
-  color: 0xffffff,
-  size: 0.5,
-  map: texture,
-  blending: THREE.AdditiveBlending,
-  transparent: true,
-})
-let particleSys = new THREE.Points(particleGeom, particleMaterial)
-particleSys.name = "particleSys"
-particleSys.sortParticles = true
-trackerGroup.add(particleSys)
 
 function init(geometry, texture) {
   // Create material with msdf shader from three-bmfont-text
-  const material = new THREE.RawShaderMaterial(MSDFShader({
-    map: texture,
-    color: 0x000000, // We'll remove it later when defining the fragment shader
-    side: THREE.DoubleSide,
-    transparent: true,
-    negate: false,
-  }));
-  console.log(material);
-  // Create mesh of text       
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(-80, 0, 0); // Move according to text size
-  mesh.rotation.set(Math.PI, 0, 0); // Spin to face correctly
+  const material = new THREE.RawShaderMaterial(
+    MSDFShader({
+      map: texture,
+      color: 0x000000, // We'll remove it later when defining the fragment shader
+      side: THREE.DoubleSide,
+      transparent: true,
+      negate: false,
+    })
+  )
+  console.log(material)
+  // Create mesh of text
+  const mesh = new THREE.Mesh(geometry, material)
+  mesh.position.set(-80, 0, 0) // Move according to text size
+  mesh.rotation.set(Math.PI, 0, 0) // Spin to face correctly
   // mesh.scale.set(.1, .1, .1); // Spin to face correctly
-  trackerGroup.add(mesh);
-  console.log("Added");
+  trackerGroup.add(mesh)
+  console.log("Added")
 }
-
-tracker.onNewAnchor.bind((anchor) => {
-  console.log("New anchor has appeared:", anchor.id)
-
-  // You may like to create a new ImageAnchorGroup here for this anchor, and add it to your scene
-})
-particleSys.visible = false
-tracker.onVisible.bind((anchor) => {
-  console.log("Anchor is visible:", anchor.id)
-  particleSys.visible = true
-})
-
-tracker.onNotVisible.bind((anchor) => {
-  console.log("Anchor is not visible:", anchor.id)
-  particleSys.visible = false
-})
 
 // Set up our render loop
 function render() {
