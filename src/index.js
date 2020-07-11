@@ -124,6 +124,7 @@ function init(geometry, texture) {
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(-80, 0, 0); // Move according to text size
   mesh.rotation.set(Math.PI, 0, 0); // Spin to face correctly
+  mesh.scale.set(.1, .1, .1); // Spin to face correctly
   trackerGroup.add(mesh);
   console.log("Added");
 }
