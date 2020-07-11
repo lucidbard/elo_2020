@@ -25,7 +25,7 @@ loadFont(nfont, (err, font) => {
     render()
   })
 })
-TRACKING = false
+let TRACKING = false
 const MSDFShader = require("three-bmfont-text/shaders/msdf")
 
 // ZapparThree provides a LoadingManager that shows a progress bar while
@@ -55,6 +55,20 @@ var particleMaterial = new THREE.ParticleBasicMaterial({
 let particleSys = new THREE.Points(particleGeom, particleMaterial)
 particleSys.name = "particleSys"
 particleSys.sortParticles = true
+particleSys.visible = !TRACKING
+for (var i = 0; i < particleCount; i++) {
+  let a = (i / particleCount) * Math.PI * 2
+
+  let cosX = Math.cos(a)
+  let sinY = Math.sin(a)
+  vectors.push([cosX, sinY, a])
+  let posZ = Math.random()
+  let newX = cx + (radius + posZ) * cosX
+  let newY = cy + (radius + posZ) * sinY
+  let particle = new THREE.Vector3(newX, newY, posZ)
+  particleGeom.vertices.push(particle)
+}
+console.log(particleSys)
 let trackerGroup, camera
 let scene = new THREE.Scene()
 if (TRACKING) {
@@ -87,7 +101,6 @@ if (TRACKING) {
 
     // You may like to create a new ImageAnchorGroup here for this anchor, and add it to your scene
   })
-  particleSys.visible = !TRACKING
   tracker.onVisible.bind((anchor) => {
     console.log("Anchor is visible:", anchor.id)
     particleSys.visible = true
@@ -98,6 +111,7 @@ if (TRACKING) {
     particleSys.visible = false
   })
 } else {
+  console.log("NOT TRACKING")
   camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
@@ -105,14 +119,14 @@ if (TRACKING) {
     1000
   )
   camera.position.z = 5
-  trackerGroup = THREE.Group()
+  trackerGroup = new THREE.Group()
   var geometry = new THREE.BoxGeometry()
   var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
   var cube = new THREE.Mesh(geometry, material)
   scene.add(cube)
-
   scene.add(trackerGroup)
 }
+// console.log(trackerGroup)
 trackerGroup.add(particleSys)
 
 // Add some content
@@ -129,18 +143,6 @@ var cy = -2.15
 let particleCount = 300
 var particleGeom = new THREE.Geometry()
 let vectors = []
-for (var i = 0; i < particleCount; i++) {
-  let a = (i / particleCount) * Math.PI * 2
-
-  let cosX = Math.cos(a)
-  let sinY = Math.sin(a)
-  vectors.push([cosX, sinY, a])
-  let posZ = Math.random()
-  let newX = cx + (radius + posZ) * cosX
-  let newY = cy + (radius + posZ) * sinY
-  let particle = new THREE.Vector3(newX, newY, posZ)
-  particleGeom.vertices.push(particle)
-}
 
 function init(geometry, texture) {
   // Create material with msdf shader from three-bmfont-text
@@ -159,16 +161,19 @@ function init(geometry, texture) {
   mesh.position.set(-80, 0, 0) // Move according to text size
   mesh.rotation.set(Math.PI, 0, 0) // Spin to face correctly
   // mesh.scale.set(.1, .1, .1); // Spin to face correctly
-  trackerGroup.add(mesh)
+  // trackerGroup.add(mesh)
   console.log("Added")
 }
 
 // Set up our render loop
 function render() {
-  requestAnimationFrame(render)
-  camera.updateFrame(renderer)
+  // requestAnimationFrame(render)
+  if (TRACKING) {
+    camera.updateFrame(renderer)
+  }
 
   let particleSys = trackerGroup.getObjectByName("particleSys")
+  console.log(particleSys)
   for (var i = 0; i < particleSys.geometry.vertices.length; i++) {
     let particle = particleSys.geometry.vertices[i]
     let ht = particle.z
@@ -208,8 +213,7 @@ function render() {
   //   particleSystem.geometry.__dirtyVertices = true
 
   // set up the next call
-  //   requestAnimFrame(update)
+  // requestAnimFrame(update)
   renderer.render(scene, camera)
 }
-
 requestAnimationFrame(render)
