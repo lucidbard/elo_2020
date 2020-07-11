@@ -5,7 +5,7 @@ module.exports = {
 	entry: './src/index.js',
 	output: {
 		path: path.resolve(__dirname, 'dist'),
-		filename: 'index.js'
+    filename: 'index.js',
 	},
 	resolve: {
 		extensions: [".js", ".wasm"]
@@ -28,11 +28,7 @@ module.exports = {
 				use: ['style-loader', 'css-loader'],
       },
 			{
-				test: /\.fnt$/,
-				loader: "url-loader"
-			},
-			{
-				test: /zcv\.wasm$/,
+				test: /(\.fnt|zcv\.wasm|\.png)$/,
 				type: "javascript/auto",
 				loader: "file-loader"
 			},

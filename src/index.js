@@ -4,10 +4,12 @@ import "./style.css"
 import * as ZapparThree from "@zappar/zappar-threejs"
 const createGeometry = require('three-bmfont-text');
 const loadFont = require('load-bmfont');
+import atlas from './font/atlas.png';
 import * as THREE from "three"
-let nfont = require("./font/HelveticaNeue.fnt");
+import nfont from "./font/HelveticaNeue.fnt";
 console.log(nfont)
 loadFont(nfont, (err, font) => {
+  console.log("Font loaded!")
   console.log(err)
   // Create a geometry of packed bitmap glyphs
   console.log(font);
@@ -17,10 +19,12 @@ loadFont(nfont, (err, font) => {
   });  
   // Load texture containing font glyphs
   const loader = new THREE.TextureLoader();
-  loader.load(require("file-loader!./font/atlas.png"), (texture) => {
+  console.log(loader, geometry);
+  loader.load(atlas, (texture) => {
+    console.log("Atlas loaded!")
     // Start and animate renderer
     init(geometry, texture);
-    render();
+    // render();
   });
 });
 
@@ -115,12 +119,13 @@ function init(geometry, texture) {
     transparent: true,
     negate: false,
   }));
-
+  console.log(material);
   // Create mesh of text       
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(-80, 0, 0); // Move according to text size
   mesh.rotation.set(Math.PI, 0, 0); // Spin to face correctly
   trackerGroup.add(mesh);
+  console.log("Added");
 }
 
 tracker.onNewAnchor.bind((anchor) => {
