@@ -1,20 +1,20 @@
-import * as THREE from "three"
-import * as ZapparThree from "@zappar/zappar-threejs"
 
 import "./style.css"
 
+import * as ZapparThree from "@zappar/zappar-threejs"
 const createGeometry = require('three-bmfont-text');
 const loadFont = require('load-bmfont');
-loadFont('fonts/HelveticaNeue.fnt', (err, font) => {
+import * as THREE from "three"
+
+loadFont(require("file-loader!./fonts/HelveticaNeue.fnt"), (err, font) => {
   // Create a geometry of packed bitmap glyphs
   const geometry = createGeometry({
     font,
     text: 'OCEAN'
-  });
-  
+  });  
   // Load texture containing font glyphs
   const loader = new THREE.TextureLoader();
-  loader.load('fonts/atlas.png', (texture) => {
+  loader.load(require("file-loader!./fonts/atlas.png"), (texture) => {
     // Start and animate renderer
     init(geometry, texture);
     animate();
