@@ -3,6 +3,37 @@ import * as ZapparThree from "@zappar/zappar-threejs"
 
 import "./style.css"
 
+const createGeometry = require('three-bmfont-text');
+const loadFont = require('load-bmfont');
+loadFont('fonts/HelveticaNeue.fnt', (err, font) => {
+  // Create a geometry of packed bitmap glyphs
+  const geometry = createGeometry({
+    font,
+    text: 'OCEAN'
+  });
+  
+  // Load texture containing font glyphs
+  const loader = new THREE.TextureLoader();
+  loader.load('fonts/atlas.png', (texture) => {
+    // Start and animate renderer
+    init(geometry, texture);
+    animate();
+  });
+});
+
+const MSDFShader = require('three-bmfont-text/shaders/msdf');
+const material = new THREE.RawShaderMaterial(MSDFShader({
+  map: texture,
+  color: 0x000000, // We'll remove it later when defining the fragment shader
+  side: THREE.DoubleSide,
+  transparent: true,
+  negate: false,
+}));
+
+// Create mesh of text       
+const mesh = new THREE.Mesh(geometry, material);
+mesh.position.set(-80, 0, 0); // Move according to text size
+mesh.rotation.set(Math.PI, 0, 0); // Spin to face correctly
 // ZapparThree provides a LoadingManager that shows a progress bar while
 // the assets are downloaded
 let manager = new ZapparThree.LoadingManager()
@@ -82,7 +113,7 @@ let particleSys = new THREE.Points(particleGeom, particleMaterial)
 particleSys.name = "particleSys"
 particleSys.sortParticles = true
 trackerGroup.add(particleSys)
-
+trackerGroup.add(mesh)
 tracker.onNewAnchor.bind((anchor) => {
   console.log("New anchor has appeared:", anchor.id)
 

@@ -14,8 +14,10 @@
     "css-loader": "^3.5.3",
     "html-loader": "^1.1.0",
     "html-webpack-plugin": "^4.3.0",
+    "load-bmfont": "^1.4.1",
     "style-loader": "^1.2.1",
     "three": "^0.116.1",
+    "three-bmfont-text": "^3.0.1",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3"
