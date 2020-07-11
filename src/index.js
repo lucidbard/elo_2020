@@ -52,10 +52,26 @@ var particleMaterial = new THREE.ParticleBasicMaterial({
   blending: THREE.AdditiveBlending,
   transparent: true,
 })
+
+// Add some content
+var radius = 2.25
+var cx = 0
+var cy = -2.15
+// let box = new THREE.Mesh(
+//   new THREE.BoxBufferGeometry(),
+//   new THREE.MeshBasicMaterial()
+// )
+// box.position.set(0, cy, -0.5)
+// trackerGroup.add(box)
+
+let particleCount = 300
+var particleGeom = new THREE.Geometry()
 let particleSys = new THREE.Points(particleGeom, particleMaterial)
 particleSys.name = "particleSys"
 particleSys.sortParticles = true
 particleSys.visible = !TRACKING
+
+let vectors = []
 for (var i = 0; i < particleCount; i++) {
   let a = (i / particleCount) * Math.PI * 2
 
@@ -129,27 +145,12 @@ if (TRACKING) {
 // console.log(trackerGroup)
 trackerGroup.add(particleSys)
 
-// Add some content
-var radius = 2.25
-var cx = 0
-var cy = -2.15
-// let box = new THREE.Mesh(
-//   new THREE.BoxBufferGeometry(),
-//   new THREE.MeshBasicMaterial()
-// )
-// box.position.set(0, cy, -0.5)
-// trackerGroup.add(box)
-
-let particleCount = 300
-var particleGeom = new THREE.Geometry()
-let vectors = []
-
 function init(geometry, texture) {
   // Create material with msdf shader from three-bmfont-text
   const material = new THREE.RawShaderMaterial(
     MSDFShader({
       map: texture,
-      color: 0x000000, // We'll remove it later when defining the fragment shader
+      color: 0xffffff, // We'll remove it later when defining the fragment shader
       side: THREE.DoubleSide,
       transparent: true,
       negate: false,
@@ -158,10 +159,10 @@ function init(geometry, texture) {
   console.log(material)
   // Create mesh of text
   const mesh = new THREE.Mesh(geometry, material)
-  mesh.position.set(-80, 0, 0) // Move according to text size
+  mesh.position.set(-3, 0, 1) // Move according to text size
   mesh.rotation.set(Math.PI, 0, 0) // Spin to face correctly
-  // mesh.scale.set(.1, .1, .1); // Spin to face correctly
-  // trackerGroup.add(mesh)
+  mesh.scale.set(0.05, 0.05, 0.05) // Spin to face correctly
+  trackerGroup.add(mesh)
   console.log("Added")
 }
 

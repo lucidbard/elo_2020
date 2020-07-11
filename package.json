@@ -12,6 +12,7 @@
   "dependencies": {
     "@zappar/zappar-threejs": "^0.2.5",
     "css-loader": "^3.5.3",
+    "glslify": "^7.0.0",
     "html-loader": "^1.1.0",
     "html-webpack-plugin": "^4.3.0",
     "load-bmfont": "^1.4.1",
