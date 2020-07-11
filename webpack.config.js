@@ -26,6 +26,10 @@ module.exports = {
 			{
 				test: /\.css$/i,
 				use: ['style-loader', 'css-loader'],
+      },
+			{
+				test: /\.fnt$/,
+				loader: "url-loader"
 			},
 			{
 				test: /zcv\.wasm$/,

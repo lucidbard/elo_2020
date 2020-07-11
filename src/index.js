@@ -5,8 +5,9 @@ import * as ZapparThree from "@zappar/zappar-threejs"
 const createGeometry = require('three-bmfont-text');
 const loadFont = require('load-bmfont');
 import * as THREE from "three"
-
-loadFont("./font/HelveticaNeue.fnt", (err, font) => {
+let nfont = require("./font/HelveticaNeue.fnt");
+console.log(nfont)
+loadFont(nfont, (err, font) => {
   console.log(err)
   // Create a geometry of packed bitmap glyphs
   console.log(font);
@@ -16,10 +17,10 @@ loadFont("./font/HelveticaNeue.fnt", (err, font) => {
   });  
   // Load texture containing font glyphs
   const loader = new THREE.TextureLoader();
-  loader.load("./font/atlas.png", (texture) => {
+  loader.load(require("file-loader!./font/atlas.png"), (texture) => {
     // Start and animate renderer
     init(geometry, texture);
-    animate();
+    render();
   });
 });
 
