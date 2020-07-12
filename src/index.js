@@ -41,7 +41,7 @@ window.addEventListener("resize", () => {
 // console.log(particleSys)
 let words = []
 let pivot
-function init(geometry, texture, geometry2) {
+function init(font, texture) {
   // Create material with msdf shader from three-bmfont-text
 
   var ptexture = new THREE.TextureLoader().load(
@@ -92,18 +92,12 @@ function init(geometry, texture, geometry2) {
         negate: false,
       })
     )
-  // const material2 =
-  //   new THREE.RawShaderMaterial(
-  //     MSDFShader({
-  //       map: texture,
-  //       color: 0x000000, // We'll remove it later when defining the fragment shader
-  //       side: THREE.DoubleSide,
-  //       opacity: 1,
-  //       transparent: true,
-  //       negate: false,
-  //     })
-  //   )
-
+      let geom1 = createGeometry({
+        font,
+      })
+      let geom2 = createGeometry({
+        font,
+      })
     for (let i = 0; i <= particleCount; i++) {
       let a = (i / particleCount) * Math.PI * 2
       let cosX = Math.cos(a)
@@ -115,9 +109,11 @@ function init(geometry, texture, geometry2) {
       let newY = cy + (radius + posZ) * sinY
       let mesh
       if (i % 2 == 0) {
-        mesh = new THREE.Mesh(geometry, material)
+        geom1.update("COVID19")
+        mesh = new THREE.Mesh(geom1, material)
       } else {
-        mesh = new THREE.Mesh(geometry2, material)
+        geom2.update("PANDEMIC")
+        mesh = new THREE.Mesh(geom2, material)
       }
       mesh.name = "Words" + i.toString()
       mesh.geometry.computeBoundingBox()
@@ -297,22 +293,13 @@ loadFont(nfont, (err, font) => {
   // console.log(err)
   // Create a geometry of packed bitmap glyphs
   // let geometry = []
-  loadFont(nfont2, (err2, font2) => {
+  // loadFont(nfont2, (err2, font2) => {
     const loader = new THREE.TextureLoader()
     loader.load(atlas, (texture) => {
         // Start and animate renderer
         init(
-          createGeometry({
-            font: font,
-            text: "PANDEMIC",
-          }),
-          texture,
-          createGeometry({
-            font,
-            text: "COVID19",
-          })
+          font,
+          texture
         )
-      // render()
-    })
   })
 })
