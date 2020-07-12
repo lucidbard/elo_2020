@@ -3,13 +3,10 @@ import * as ZapparThree from "@zappar/zappar-threejs"
 const createGeometry = require("three-bmfont-text")
 const loadFont = require("load-bmfont")
 import atlas from "./font/Helvetica/HelveticaNeue.png"
-import atlas2 from "./font/Helvetica/HelveticaNeue.png"
 
 import * as THREE from "three"
 import nfont from "./font/Helvetica/HelveticaNeue.fnt"
-import nfont2 from "./font/Helvetica/HelveticaNeue.fnt"
 import { RGBA_ASTC_10x5_Format } from "three"
-console.log(nfont)
 
 let TRACKING = true
 // let TRACKING = true .
@@ -44,7 +41,7 @@ window.addEventListener("resize", () => {
 // console.log(particleSys)
 let words = []
 let pivot
-function init(geometry, texture, geometry2, texture2) {
+function init(geometry, texture, geometry2) {
   // Create material with msdf shader from three-bmfont-text
 
   var ptexture = new THREE.TextureLoader().load(
@@ -84,7 +81,7 @@ function init(geometry, texture, geometry2, texture2) {
   pivot.position.set(0, 0, 0) // Move according to text size
   pivot.name = "pivot"
 
-  const materials = [
+  const material = 
     new THREE.RawShaderMaterial(
       MSDFShader({
         map: texture,
@@ -94,46 +91,44 @@ function init(geometry, texture, geometry2, texture2) {
         transparent: true,
         negate: false,
       })
-    ),
-    new THREE.RawShaderMaterial(
-      MSDFShader({
-        map: texture2,
-        color: 0x000000, // We'll remove it later when defining the fragment shader
-        side: THREE.DoubleSide,
-        opacity: 1,
-        transparent: true,
-        negate: false,
-      })
-    ),
-  ]
+    )
+  // const material2 =
+  //   new THREE.RawShaderMaterial(
+  //     MSDFShader({
+  //       map: texture,
+  //       color: 0x000000, // We'll remove it later when defining the fragment shader
+  //       side: THREE.DoubleSide,
+  //       opacity: 1,
+  //       transparent: true,
+  //       negate: false,
+  //     })
+  //   )
 
-  // mesh = new THREE.Mesh(geometry[i % 2], material.clone())
-  mesh.name = "Words" + i.toString()
-  mesh.geometry.computeBoundingBox()
-  let xlen =
-    0.01 *
-    (mesh.geometry.boundingBox.max.x - mesh.geometry.boundingBox.min.x) *
-    0.5
-  let ylen =
-    0.01 *
-    (mesh.geometry.boundingBox.max.y - mesh.geometry.boundingBox.min.y) *
-    0.5
-  for (i = 1; i <= particleCount; i++) {
-    let a = (i / particleCount) * Math.PI * 2
-    let cosX = Math.cos(a)
-    let sinY = Math.sin(a)
-
-    vectors.push([cosX, sinY, a])
-    let i = 0
-    let posZ = Math.random()
-    let newX = cx + (radius + posZ) * cosX
-    let newY = cy + (radius + posZ) * sinY
-    let mesh
-    if (i % 2 == 0) {
-      mesh = new THREE.Mesh(geometry, materials[0])
-    } else {
-      mesh = new THREE.Mesh(geometry2, materials[1])
-    }
+    for (let i = 0; i <= particleCount; i++) {
+      let a = (i / particleCount) * Math.PI * 2
+      let cosX = Math.cos(a)
+      let sinY = Math.sin(a)
+      
+      vectors.push([cosX, sinY, a])
+      let posZ = Math.random()
+      let newX = cx + (radius + posZ) * cosX
+      let newY = cy + (radius + posZ) * sinY
+      let mesh
+      if (i % 2 == 0) {
+        mesh = new THREE.Mesh(geometry, material)
+      } else {
+        mesh = new THREE.Mesh(geometry2, material)
+      }
+      mesh.name = "Words" + i.toString()
+      mesh.geometry.computeBoundingBox()
+      let xlen =
+        0.01 *
+        (mesh.geometry.boundingBox.max.x - mesh.geometry.boundingBox.min.x) *
+        0.5
+      let ylen =
+        0.01 *
+        (mesh.geometry.boundingBox.max.y - mesh.geometry.boundingBox.min.y) *
+        0.5
     let particle = new THREE.Vector3(newX, newY, posZ)
     particleGeom.vertices.push(particle)
     mesh.rotation.set(Math.PI, 0, 0) // Spin to face correctly
@@ -305,22 +300,18 @@ loadFont(nfont, (err, font) => {
   loadFont(nfont2, (err2, font2) => {
     const loader = new THREE.TextureLoader()
     loader.load(atlas, (texture) => {
-      const loader2 = new THREE.TextureLoader()
-      loader2.load(atlas2, (texture2) => {
         // Start and animate renderer
         init(
           createGeometry({
-            font: font2,
+            font: font,
             text: "PANDEMIC",
           }),
           texture,
           createGeometry({
             font,
             text: "COVID19",
-          }),
-          texture2
+          })
         )
-      })
       // render()
     })
   })
