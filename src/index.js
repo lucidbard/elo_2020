@@ -2,9 +2,9 @@ import "./style.css"
 import * as ZapparThree from "@zappar/zappar-threejs"
 const createGeometry = require("three-bmfont-text")
 const loadFont = require("load-bmfont")
-import atlas from "./font/Helvetica/atlas.png"
+import atlas from "./font/Helvetica/BoldAtlas.png"
 import * as THREE from "three"
-import nfont from "./font/Helvetica/HelveticaNeue.fnt"
+import nfont from "./font/Helvetica/HelveticaNeueBd.fnt"
 console.log(nfont)
 loadFont(nfont, (err, font) => {
   console.log("Font loaded!")
@@ -25,7 +25,7 @@ loadFont(nfont, (err, font) => {
     render()
   })
 })
-let TRACKING = false
+let TRACKING = true
 const MSDFShader = require("three-bmfont-text/shaders/msdf")
 
 // ZapparThree provides a LoadingManager that shows a progress bar while
@@ -69,7 +69,7 @@ var particleGeom = new THREE.Geometry()
 let particleSys = new THREE.Points(particleGeom, particleMaterial)
 particleSys.name = "particleSys"
 particleSys.sortParticles = true
-particleSys.visible = !TRACKING
+particleSys.visible = TRACKING
 
 let vectors = []
 for (var i = 0; i < particleCount; i++) {
@@ -84,9 +84,10 @@ for (var i = 0; i < particleCount; i++) {
   let particle = new THREE.Vector3(newX, newY, posZ)
   particleGeom.vertices.push(particle)
 }
-console.log(particleSys)
+// console.log(particleSys)
 let trackerGroup, camera
 let scene = new THREE.Scene()
+let mesh, pivot
 if (TRACKING) {
   camera = new ZapparThree.Camera()
   camera.posMode = ZapparThree.CameraPoseMode.AnchorOrigin
@@ -139,7 +140,7 @@ if (TRACKING) {
   var geometry = new THREE.BoxGeometry()
   var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
   var cube = new THREE.Mesh(geometry, material)
-  scene.add(cube)
+  // scene.add(cube)
   scene.add(trackerGroup)
 }
 // console.log(trackerGroup)
@@ -156,25 +157,30 @@ function init(geometry, texture) {
       negate: false,
     })
   )
-  console.log(material)
+  // console.log(material)
   // Create mesh of text
-  const mesh = new THREE.Mesh(geometry, material)
-  mesh.position.set(-3, 0, 1) // Move according to text size
+  mesh = new THREE.Mesh(geometry, material)
+  mesh.name="Words"
+  mesh.position.set(-3, 0, 0) // Move according to text size
   mesh.rotation.set(Math.PI, 0, 0) // Spin to face correctly
   mesh.scale.set(0.05, 0.05, 0.05) // Spin to face correctly
-  trackerGroup.add(mesh)
-  console.log("Added")
+  pivot = new THREE.Object3D();
+  pivot.position.set(0, 0, 1) // Move according to text size
+  pivot.name = "pivot"
+  pivot.add( mesh );
+  trackerGroup.add(pivot)
+  // console.log("Added")
 }
 
 // Set up our render loop
 function render() {
-  // requestAnimationFrame(render)
+  requestAnimationFrame(render)
   if (TRACKING) {
     camera.updateFrame(renderer)
   }
 
   let particleSys = trackerGroup.getObjectByName("particleSys")
-  console.log(particleSys)
+
   for (var i = 0; i < particleSys.geometry.vertices.length; i++) {
     let particle = particleSys.geometry.vertices[i]
     let ht = particle.z
@@ -215,6 +221,13 @@ function render() {
 
   // set up the next call
   // requestAnimFrame(update)
+  // let name = trackerGroup.getObjectByName("Words")
+  if(pivot != null) {
+    // mesh.rotation.x += 0.01;
+    pivot.rotation.y += 0.01;
+  } else {
+    console.log("Updated")
+  }
   renderer.render(scene, camera)
 }
 requestAnimationFrame(render)
