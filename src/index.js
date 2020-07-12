@@ -39,8 +39,14 @@ window.addEventListener("resize", () => {
 // particleSys.visible = !TRACKING
 
 // console.log(particleSys)
-let words = []
+let words = ["Covid-19","Pandemic","Wear Masks","6 Feet","Social Distancing",""]
 let pivot
+let geom1
+let pandemic = true;
+setInterval(() => {
+  let index = Mathp.floor(Math.random()*words.length);
+  geom1.update(words[index])
+}, 2000);
 function init(font, texture) {
   // Create material with msdf shader from three-bmfont-text
 
@@ -92,12 +98,10 @@ function init(font, texture) {
         negate: false,
       })
     )
-      let geom1 = createGeometry({
-        font,
-      })
-      let geom2 = createGeometry({
-        font,
-      })
+    geom1 = createGeometry({
+      font,
+    })
+    geom1.update("COVID19")
     for (let i = 0; i <= particleCount; i++) {
       let a = (i / particleCount) * Math.PI * 2
       let cosX = Math.cos(a)
@@ -108,13 +112,8 @@ function init(font, texture) {
       let newX = cx + (radius + posZ) * cosX
       let newY = cy + (radius + posZ) * sinY
       let mesh
-      if (i % 2 == 0) {
-        geom1.update("COVID19")
-        mesh = new THREE.Mesh(geom1, material)
-      } else {
-        geom2.update("PANDEMIC")
-        mesh = new THREE.Mesh(geom2, material)
-      }
+      
+      mesh = new THREE.Mesh(geom1, material)
       mesh.name = "Words" + i.toString()
       mesh.geometry.computeBoundingBox()
       let xlen =
