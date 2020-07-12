@@ -2,9 +2,9 @@ import "./style.css"
 import * as ZapparThree from "@zappar/zappar-threejs"
 const createGeometry = require("three-bmfont-text")
 const loadFont = require("load-bmfont")
-import atlas from "./font/atlas.png"
+import atlas from "./font/Helvetica/atlas.png"
 import * as THREE from "three"
-import nfont from "./font/HelveticaNeue.fnt"
+import nfont from "./font/Helvetica/HelveticaNeue.fnt"
 console.log(nfont)
 loadFont(nfont, (err, font) => {
   console.log("Font loaded!")
