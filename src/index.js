@@ -39,14 +39,16 @@ window.addEventListener("resize", () => {
 // particleSys.visible = !TRACKING
 
 // console.log(particleSys)
-let words = ["Covid-19","Pandemic","Wear Masks","6 Feet","Social Distancing",""]
+let words = []
+let mode = 0;
+let text = ["Covid-19","Pandemic","Wear Masks","6 Feet Apart","Social Distancing", "Safer at Home", "Testing Testing","Freedom","Immunity Passports","Shutdown","Phase 1", "World Health Organization"]
 let pivot
 let geom1
 let pandemic = true;
 setInterval(() => {
-  let index = Mathp.floor(Math.random()*words.length);
-  geom1.update(words[index])
-}, 2000);
+  let index = Math.floor(Math.random()*text.length);
+  geom1.update(text[index])
+}, 4000);
 function init(font, texture) {
   // Create material with msdf shader from three-bmfont-text
 
