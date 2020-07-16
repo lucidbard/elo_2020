@@ -8,7 +8,7 @@ import * as THREE from "three"
 import nfont from "./font/Helvetica/HelveticaNeue.fnt"
 import { RGBA_ASTC_10x5_Format } from "three"
 
-let TRACKING = true
+let TRACKING = false
 // let TRACKING = true .
 const MSDFShader = require("three-bmfont-text/shaders/msdf")
 
@@ -40,15 +40,28 @@ window.addEventListener("resize", () => {
 
 // console.log(particleSys)
 let words = []
-let mode = 0;
-let text = ["Covid-19","Pandemic","Wear Masks","6 Feet Apart","Social Distancing", "Safer at Home", "Testing Testing","Freedom","Immunity Passports","Shutdown","Phase 1", "World Health Organization"]
+let mode = 0
+let text = [
+  "Covid-19",
+  "Pandemic",
+  "Wear Masks",
+  "6 Feet Apart",
+  "Social Distancing",
+  "Safer at Home",
+  "Testing Testing",
+  "Freedom",
+  "Immunity Passports",
+  "Shutdown",
+  "Phase 1",
+  "World Health Organization",
+]
 let pivot
 let geom1
-let pandemic = true;
+let pandemic = true
 setInterval(() => {
-  let index = Math.floor(Math.random()*text.length);
+  let index = Math.floor(Math.random() * text.length)
   geom1.update(text[index])
-}, 4000);
+}, 4000)
 function init(font, texture) {
   // Create material with msdf shader from three-bmfont-text
 
@@ -89,43 +102,42 @@ function init(font, texture) {
   pivot.position.set(0, 0, 0) // Move according to text size
   pivot.name = "pivot"
 
-  const material = 
-    new THREE.RawShaderMaterial(
-      MSDFShader({
-        map: texture,
-        color: 0x000000, // We'll remove it later when defining the fragment shader
-        side: THREE.DoubleSide,
-        opacity: 1,
-        transparent: true,
-        negate: false,
-      })
-    )
-    geom1 = createGeometry({
-      font,
+  const material = new THREE.RawShaderMaterial(
+    MSDFShader({
+      map: texture,
+      color: 0x000000, // We'll remove it later when defining the fragment shader
+      side: THREE.DoubleSide,
+      opacity: 1,
+      transparent: true,
+      negate: false,
     })
-    geom1.update("COVID19")
-    for (let i = 0; i <= particleCount; i++) {
-      let a = (i / particleCount) * Math.PI * 2
-      let cosX = Math.cos(a)
-      let sinY = Math.sin(a)
-      
-      vectors.push([cosX, sinY, a])
-      let posZ = Math.random()
-      let newX = cx + (radius + posZ) * cosX
-      let newY = cy + (radius + posZ) * sinY
-      let mesh
-      
-      mesh = new THREE.Mesh(geom1, material)
-      mesh.name = "Words" + i.toString()
-      mesh.geometry.computeBoundingBox()
-      let xlen =
-        0.01 *
-        (mesh.geometry.boundingBox.max.x - mesh.geometry.boundingBox.min.x) *
-        0.5
-      let ylen =
-        0.01 *
-        (mesh.geometry.boundingBox.max.y - mesh.geometry.boundingBox.min.y) *
-        0.5
+  )
+  geom1 = createGeometry({
+    font,
+  })
+  geom1.update("COVID19")
+  for (let i = 0; i <= particleCount; i++) {
+    let a = (i / particleCount) * Math.PI * 2
+    let cosX = Math.cos(a)
+    let sinY = Math.sin(a)
+
+    vectors.push([cosX, sinY, a])
+    let posZ = Math.random()
+    let newX = cx + (radius + posZ) * cosX
+    let newY = cy + (radius + posZ) * sinY
+    let mesh
+
+    mesh = new THREE.Mesh(geom1, material)
+    mesh.name = "Words" + i.toString()
+    mesh.geometry.computeBoundingBox()
+    let xlen =
+      0.01 *
+      (mesh.geometry.boundingBox.max.x - mesh.geometry.boundingBox.min.x) *
+      0.5
+    let ylen =
+      0.01 *
+      (mesh.geometry.boundingBox.max.y - mesh.geometry.boundingBox.min.y) *
+      0.5
     let particle = new THREE.Vector3(newX, newY, posZ)
     particleGeom.vertices.push(particle)
     mesh.rotation.set(Math.PI, 0, 0) // Spin to face correctly
@@ -295,12 +307,9 @@ loadFont(nfont, (err, font) => {
   // Create a geometry of packed bitmap glyphs
   // let geometry = []
   // loadFont(nfont2, (err2, font2) => {
-    const loader = new THREE.TextureLoader()
-    loader.load(atlas, (texture) => {
-        // Start and animate renderer
-        init(
-          font,
-          texture
-        )
+  const loader = new THREE.TextureLoader()
+  loader.load(atlas, (texture) => {
+    // Start and animate renderer
+    init(font, texture)
   })
 })
